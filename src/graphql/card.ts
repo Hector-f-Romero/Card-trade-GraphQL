@@ -1,3 +1,7 @@
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
 export const typeDef = `
 	extend type Query {
 		cards: [Card]
@@ -8,7 +12,7 @@ export const typeDef = `
 		name: String!
 		description: String!
 		value: Int!
-		rarity: String!
+		rarity: Rarity!
 		created_at: String!
 		updated_at: String!
 	}
@@ -16,25 +20,13 @@ export const typeDef = `
 
 export const resolvers = {
 	Query: {
-		cards: () => [
-			{
-				card_id: 1,
-				name: "Test 1",
-				description:
-					"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi fringilla posuere mollis. Quisque vitae velit non lorem dapibus fringilla eget nec augue",
-				value: 10,
-				rarity: "Epic",
-				created_at: "7/12/2023",
-			},
-			{
-				card_id: 2,
-				name: "Test 2",
-				description:
-					"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi fringilla posuere mollis. Quisque vitae velit non lorem dapibus fringilla eget nec augue",
-				value: 10,
-				rarity: "Common",
-				created_at: "6/12/2023",
-			},
-		],
+		cards: async () => {
+			try {
+				const cards = await prisma.cards.findMany();
+				return cards;
+			} catch (error) {
+				console.log(error);
+			}
+		},
 	},
 };
