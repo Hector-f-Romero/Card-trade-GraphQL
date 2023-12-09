@@ -27,71 +27,50 @@ export const typeDef = `
 export const resolvers = {
 	Query: {
 		getRarities: async () => {
-			try {
-				const rarities = await prisma.rarities.findMany();
-				return rarities;
-			} catch (error) {
-				console.log(error);
-			}
+			const rarities = await prisma.rarities.findMany();
+			return rarities;
 		},
 		getRarity: async (_: unknown, args: { id: string }) => {
-			try {
-				console.log(args);
-				const rarity = await prisma.rarities.findUnique({
-					where: {
-						rarity_id: args.id,
-					},
-				});
-				return rarity;
-			} catch (error) {
-				console.log(error);
-			}
+			const rarity = await prisma.rarities.findUnique({
+				where: {
+					rarity_id: args.id,
+				},
+			});
+			return rarity;
 		},
 	},
 	Mutation: {
 		createRarity: async (_: unknown, args: { name: string }) => {
-			try {
-				const { name } = args;
-				const newRarity = await prisma.rarities.create({
-					data: {
-						rarity_id: nanoid(10),
-						name,
-					},
-				});
-				return newRarity;
-			} catch (error) {
-				console.log(error);
-			}
+			const { name } = args;
+			const newRarity = await prisma.rarities.create({
+				data: {
+					rarity_id: nanoid(10),
+					name,
+				},
+			});
+			return newRarity;
 		},
 		updateRarity: async (_: unknown, args: { id: string; name: string }) => {
-			try {
-				const { id, name } = args;
-				const updatedRarity = await prisma.rarities.update({
-					where: {
-						rarity_id: id,
-					},
-					data: {
-						name,
-					},
-				});
-				console.log(updatedRarity);
-				return updatedRarity;
-			} catch (error) {
-				console.log(error);
-			}
+			const { id, name } = args;
+			const updatedRarity = await prisma.rarities.update({
+				where: {
+					rarity_id: id,
+				},
+				data: {
+					name,
+				},
+			});
+			// console.log(updatedRarity);
+			return updatedRarity;
 		},
 		deleteRarity: async (_: unknown, args: { id: string; name: string }) => {
-			try {
-				const deletedRarity = await prisma.rarities.delete({
-					where: {
-						rarity_id: args.id,
-					},
-				});
-				console.log(deletedRarity);
-				return deletedRarity;
-			} catch (error) {
-				console.log(error);
-			}
+			const deletedRarity = await prisma.rarities.delete({
+				where: {
+					rarity_id: args.id,
+				},
+			});
+			console.log(deletedRarity);
+			return deletedRarity;
 		},
 	},
 };

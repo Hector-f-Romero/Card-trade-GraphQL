@@ -6,6 +6,7 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 
 import { schema } from "./graphql/schema.js";
+import { graphQLHandleErrors } from "./utils/handleErrors.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -15,6 +16,7 @@ app.use(express.json());
 
 const server = new ApolloServer({
 	schema: schema,
+	formatError: graphQLHandleErrors,
 });
 
 await server.start();
