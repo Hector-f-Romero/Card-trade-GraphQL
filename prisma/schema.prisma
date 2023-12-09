@@ -7,26 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model rarities {
+  rarity_id  String   @id @db.VarChar(10)
+  name       String   @unique(map: "name") @db.VarChar(20)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+  cards      cards[]
+}
+
 model cards {
   card_id     String        @id @db.VarChar(10)
-  name        String        @db.VarChar(20)
+  name        String        @unique(map: "name") @db.VarChar(20)
   description String        @db.VarChar(70)
   value       Int
-  rarity      String        @db.VarChar(20)
+  rarity      String?       @db.VarChar(20)
   created_at  DateTime      @default(now()) @db.Timestamp(0)
-  updated_at  DateTime      @default(now()) @db.DateTime(0)
-  rarities    rarities      @relation(fields: [rarity], references: [rarity_id], onDelete: NoAction, onUpdate: NoAction, map: "cards_ibfk_1")
+  updated_at  DateTime      @default(now()) @db.Timestamp(0)
+  rarities    rarities?     @relation(fields: [rarity], references: [rarity_id], map: "cards_ibfk_1")
   inventories inventories[]
 
   @@index([rarity], map: "rarity")
-}
-
-model rarities {
-  rarity_id  String   @id @db.VarChar(10)
-  name       String   @db.VarChar(20)
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  updated_at DateTime @default(now()) @db.DateTime(0)
-  cards      cards[]
 }
 
 model inventories {
@@ -35,9 +35,9 @@ model inventories {
   card_id      String   @db.VarChar(10)
   amount       Int      @default(0)
   created_at   DateTime @default(now()) @db.Timestamp(0)
-  updated_at   DateTime @default(now()) @db.DateTime(0)
-  users        users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "inventories_ibfk_1")
-  cards        cards    @relation(fields: [card_id], references: [card_id], onDelete: NoAction, onUpdate: NoAction, map: "inventories_ibfk_2")
+  updated_at   DateTime @default(now()) @db.Timestamp(0)
+  users        users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "inventories_ibfk_1")
+  cards        cards    @relation(fields: [card_id], references: [card_id], onDelete: Cascade, map: "inventories_ibfk_2")
 
   @@index([card_id], map: "card_id")
   @@index([user_id], map: "user_id")
@@ -45,9 +45,10 @@ model inventories {
 
 model users {
   user_id                  String        @id @db.VarChar(10)
-  username                 String        @db.VarChar(15)
+  username                 String        @unique(map: "username") @db.VarChar(15)
   password                 String        @db.VarChar(20)
   email                    String        @unique(map: "email") @db.VarChar(150)
   last_reward_claimed_date DateTime?     @db.Timestamp(0)
+  is_active                Boolean       @default(true)
   inventories              inventories[]
 }
