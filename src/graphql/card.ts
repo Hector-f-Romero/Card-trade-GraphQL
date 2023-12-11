@@ -1,10 +1,18 @@
 import { PrismaClient } from "@prisma/client";
+import { nanoid } from "nanoid";
 
 const prisma = new PrismaClient();
 
 export const typeDef = `
 	extend type Query {
-		cards: [Card]
+		getCards: [Card]
+		getCard(id:ID!):Card
+	}
+
+	type Mutation{
+		createCard(name:String!,description:String!,value:Int!,rarity:ID!):Card
+		updateCard(id:ID!,name:String,description:String,value:Int,rarity:ID):Card
+		deleteCard(id:ID!):Card
 	}
 
 	type Card {
@@ -20,13 +28,112 @@ export const typeDef = `
 
 export const resolvers = {
 	Query: {
-		cards: async () => {
-			try {
-				const cards = await prisma.cards.findMany();
-				return cards;
-			} catch (error) {
-				console.log(error);
-			}
+		getCards: async () => {
+			// Obtain all the cards in DB with rarity information in the field "rarities". This can be a problem in GraphQL client.
+			// There still not way to put alias in "include" clause in Prisma 5.7.0".
+			const cards = await prisma.cards.findMany({
+				include: {
+					rarities: true,
+				},
+			});
+			// To return rarity data in the key "rarity", I need to use a .map() and destructuring "rarities" key and assing it in "rarity".
+			const formattedCards = cards.map(({ rarities, ...card }) => {
+				return { ...card, rarity: rarities };
+			});
+
+			return formattedCards;
+		},
+		getCard: async (_: unknown, args: { id: string }) => {
+			// Obtain all the cards in DB with rarity information in the field "rarities".
+			// There still not way to put alias in "include" clause in Prisma 5.7.0".
+			const card = await prisma.cards.findUnique({
+				where: {
+					card_id: args.id,
+				},
+				include: {
+					rarities: true,
+				},
+			});
+
+			// Put the "rarities" field data in "rarity" key in another object to avoid problems with GraphQL client.
+			const formattedCard = {
+				card_id: card?.card_id,
+				name: card?.name,
+				description: card?.description,
+				value: card?.value,
+				rarity: card?.rarities,
+				created_at: card?.created_at,
+				updated_at: card?.updated_at,
+			};
+			return formattedCard;
+		},
+	},
+	Mutation: {
+		createCard: async (_: unknown, args: { name: string; description: string; value: number; rarity: string }) => {
+			const { name, description, rarity, value } = args;
+			const newCard = await prisma.cards.create({
+				data: {
+					card_id: nanoid(10),
+					name,
+					description,
+					value,
+					rarity,
+				},
+			});
+			return newCard;
+		},
+		updateCard: async (
+			_: unknown,
+			args: { id: string; name: string; description: string; value: number; rarity: string }
+		) => {
+			const { id, name, description, rarity, value } = args;
+			const updatedCard = await prisma.cards.update({
+				where: {
+					card_id: id,
+				},
+				include: {
+					rarities: true,
+				},
+				data: {
+					name,
+					description,
+					value,
+					rarity,
+				},
+			});
+			// Put the "rarities" field data in "rarity" key in another object to avoid problems with GraphQL client.
+			const formattedCard = {
+				card_id: updatedCard?.card_id,
+				name: updatedCard?.name,
+				description: updatedCard?.description,
+				value: updatedCard?.value,
+				rarity: updatedCard?.rarities,
+				created_at: updatedCard?.created_at,
+				updated_at: updatedCard?.updated_at,
+			};
+			return formattedCard;
+		},
+		deleteCard: async (_: unknown, args: { id: string }) => {
+			const deletedCard = await prisma.cards.delete({
+				where: {
+					card_id: args.id,
+				},
+				include: {
+					rarities: true,
+				},
+			});
+
+			// Put the "rarities" field data in "rarity" key in another object to avoid problems with GraphQL client.
+			const formattedCard = {
+				card_id: deletedCard?.card_id,
+				name: deletedCard?.name,
+				description: deletedCard?.description,
+				value: deletedCard?.value,
+				rarity: deletedCard?.rarities,
+				created_at: deletedCard?.created_at,
+				updated_at: deletedCard?.updated_at,
+			};
+			return formattedCard;
 		},
 	},
 };
