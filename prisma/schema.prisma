@@ -25,6 +25,7 @@ model cards {
   updated_at  DateTime      @default(now()) @db.Timestamp(0)
   rarities    rarities?     @relation(fields: [rarity], references: [rarity_id], map: "cards_ibfk_1")
   inventories inventories[]
+
   @@index([rarity], map: "rarity")
 }
 
@@ -45,9 +46,11 @@ model inventories {
 model users {
   user_id                  String        @id @db.VarChar(10)
   username                 String        @unique(map: "username") @db.VarChar(15)
-  password                 String        @db.VarChar(20)
+  password                 String        @db.VarChar(60)
   email                    String        @unique(map: "email") @db.VarChar(150)
   last_reward_claimed_date DateTime?     @db.Timestamp(0)
   is_active                Boolean       @default(true)
+  created_at               DateTime      @default(now()) @db.Timestamp(0)
+  updated_at               DateTime      @default(now()) @db.Timestamp(0)
   inventories              inventories[]
 }
