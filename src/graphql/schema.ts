@@ -4,6 +4,7 @@ import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
 import { typeDef as Card, resolvers as cardResolvers } from "./card.js";
 import { typeDef as Rarity, resolvers as rarityResolvers } from "./rarity.js";
 import { typeDef as User, resolvers as userResolvers } from "./user.js";
+import { typeDef as Inventory, resolvers as inventoryResolvers } from "./inventory.js";
 
 const Query = `
 	type Query {
@@ -12,6 +13,6 @@ const Query = `
 `;
 
 export const schema = makeExecutableSchema({
-	typeDefs: mergeTypeDefs([Query, Card, Rarity, User]),
-	resolvers: mergeResolvers([cardResolvers, rarityResolvers, userResolvers]),
+	typeDefs: mergeTypeDefs([Query, Card, Rarity, User, Inventory]),
+	resolvers: mergeResolvers([cardResolvers, rarityResolvers, userResolvers, inventoryResolvers]),
 });
