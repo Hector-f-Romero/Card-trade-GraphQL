@@ -1,5 +1,8 @@
 import select from "@inquirer/select";
 import chalk from "chalk";
+import { UserSingleton } from "../models/User.js";
+
+const { user } = UserSingleton.getInstance();
 
 const homeQuest = {
 	message: "What do you want to do?",
@@ -14,9 +17,9 @@ const homeQuest = {
 export const homeMenu = async () => {
 	console.clear();
 	console.log("_________________________________________________________\n");
-	console.log(chalk.whiteBright("           		Welcome to Home 🃏"));
+	console.log(chalk.whiteBright(`        Welcome to Home ${user.username} 🃏`));
 	console.log("_________________________________________________________\n");
+
 	const option = await select(homeQuest);
-	console.log(option);
 	return option;
 };

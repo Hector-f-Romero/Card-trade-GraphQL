@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 export const typeDef = `
 	extend type Query {
 		getInventory(id:ID!):Inventory
+        getUserInventory(user_id:ID):[InventoryCard]
 	}
 
 	type Mutation{
@@ -21,7 +22,18 @@ export const typeDef = `
 		amount:ID!
         created_at: String!
         updated_at: String!
+        cards: Card
+        users:User
 	}
+
+    type InventoryCard{
+        card_id:ID!
+        name:String!
+        description:String!
+        value:Int!
+        rarity:String!
+        amount:Int!
+    }
 `;
 
 export const resolvers = {
@@ -31,8 +43,22 @@ export const resolvers = {
 				where: {
 					inventory_id: args.id,
 				},
+				include: {
+					cards: true,
+					users: true,
+				},
 			});
+			console.log(inventory);
 			return inventory;
+		},
+		getUserInventory: async (_: unknown, args: { user_id: string }) => {
+			const { user_id } = args;
+			const result =
+				await prisma.$queryRaw`SELECT c.card_id,i.amount,c.name,c.description,c.value,r.name "rarity" 
+            FROM inventories as i INNER JOIN cards as c ON i.card_id = c.card_id
+            INNER JOIN rarities as r ON c.rarity=r.rarity_id WHERE user_id=${user_id};`;
+			console.log(result);
+			return result;
 		},
 	},
 	Mutation: {

@@ -8,6 +8,7 @@ import ora from "ora";
 import bcrypt from "bcrypt";
 
 import { PrismaClient } from "@prisma/client";
+import { UserSingleton } from "../models/User.js";
 
 const prisma = new PrismaClient();
 
@@ -62,7 +63,10 @@ export const loginMenu = async () => {
 		return option;
 	}
 
-	// 4. Go to home view
-	console.log("Exists");
+	// 4. Go to home view and save the user data.
+	const { user } = UserSingleton.getInstance();
+	user.id = userDB.user_id;
+	user.username = userDB.username;
+	user.email = userDB.email;
 	return "home";
 };
