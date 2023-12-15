@@ -25,7 +25,6 @@ const main = async () => {
 				break;
 			case "home":
 				option = await homeMenu();
-
 				break;
 			case "inventory":
 				option = await inventoryMenu();
@@ -35,11 +34,11 @@ const main = async () => {
 			case "trade":
 				break;
 			case "exit":
-				console.log("Thanks for all. Press Enter to exit\nHope to see you later");
 				break;
 		}
 		// await pausa();
 	} while (option !== "exit");
+	console.log("Thanks for all. Hope to see you later");
 	process.exit();
 };
 
