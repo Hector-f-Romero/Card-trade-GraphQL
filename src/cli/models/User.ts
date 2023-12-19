@@ -2,6 +2,7 @@ type User = {
 	id: string;
 	username: string;
 	email: string;
+	lastRewardClaimedDate: string;
 };
 
 // We use a Singleton patter to create a global access for user variables. Only can exists one user at time.
@@ -14,6 +15,7 @@ export class UserSingleton {
 			id: "",
 			username: "",
 			email: "",
+			lastRewardClaimedDate: "",
 		};
 	}
 

@@ -8,6 +8,7 @@ export const typeDef = `
 	extend type Query {
 		getUsers: [User]
 		getUser(id:ID!):User
+		verifyUsernameOrEmailExist(username:String,email:String):[User]
 	}
 
 	type Mutation{
@@ -40,6 +41,15 @@ export const resolvers = {
 					user_id: args.id,
 				},
 			});
+			return user;
+		},
+		verifyUsernameOrEmailExist: async (_: unknown, args: { username: string; email: string }) => {
+			const user = await prisma.users.findMany({
+				where: {
+					OR: [{ email: { equals: args.email } }, { username: { equals: args.username } }],
+				},
+			});
+			console.log(user);
 			return user;
 		},
 	},
