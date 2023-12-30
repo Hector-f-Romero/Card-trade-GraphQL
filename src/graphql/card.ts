@@ -115,7 +115,7 @@ export const resolvers = {
 						inventory_id: existInInventory.inventory_id,
 						user_id: args.user_id,
 						card_id: card.card_id,
-						amount: Number(card.amount) + 1,
+						amount: Number(existInInventory.amount) + 1,
 					});
 				} else {
 					uniqueCards.push({
@@ -137,8 +137,10 @@ export const resolvers = {
 				console.log(result);
 				return randomCards;
 			} else {
-				// Insert the new cards
-				await prisma.inventories.createMany({ data: uniqueCards });
+				// Insert the new cards if exist new cards
+				if (uniqueCards.length !== 0) {
+					await prisma.inventories.createMany({ data: uniqueCards });
+				}
 				// Update multiple existing cards.
 				await prisma.$transaction(
 					repeatedCards.map((cardUpdated) =>

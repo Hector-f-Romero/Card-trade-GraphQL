@@ -66,7 +66,7 @@ export const inventoryMenu = async () => {
 	const option: string = await select({
 		message: "Choose a card to get more information about this",
 		choices: cards,
-		pageSize: 10,
+		pageSize: 15,
 	});
 	return option;
 };
