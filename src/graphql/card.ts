@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { nanoid } from "nanoid";
+import { nanoid, random } from "nanoid";
+import { CardInventory, InventoryRecord } from "../shared.types.js";
 
 const prisma = new PrismaClient();
 
@@ -7,6 +8,7 @@ export const typeDef = `
 	extend type Query {
 		getCards: [Card]
 		getCard(id:ID!):Card
+		getRandomCards(user_id:ID!):[InventoryCard]
 	}
 
 	type Mutation{
@@ -66,6 +68,92 @@ export const resolvers = {
 				updated_at: card?.updated_at,
 			};
 			return formattedCard;
+		},
+		getRandomCards: async (_: unknown, args: { user_id: string }) => {
+			// This query return 5 cards with an ranom amount of cards (1-3)
+			const randomCards: CardInventory[] =
+				await prisma.$queryRaw`SELECT c.card_id,c.name,c.description,c.value,r.name as rarity,
+				'1' as amount FROM cards as c
+				INNER JOIN rarities as r ON c.rarity = r.rarity_id ORDER BY RAND() LIMIT 5;`;
+
+			// 1. Obtain all the cards that user has
+			const userInventoryCards: { inventory_id: string; card_id: string; amount: number }[] =
+				await prisma.inventories.findMany({
+					where: {
+						user_id: "cmXjNMgbsA",
+					},
+					select: {
+						inventory_id: true,
+						card_id: true,
+						amount: true,
+					},
+				});
+
+			// 2. If the user doesn't have any card in his/her inventory, insert all random cards.
+			if (userInventoryCards.length === 0) {
+				randomCards.forEach(async (card) => {
+					await prisma.inventories.create({
+						data: {
+							inventory_id: nanoid(15),
+							user_id: args.user_id,
+							card_id: card.card_id,
+							amount: 1,
+						},
+					});
+				});
+				return randomCards;
+			}
+
+			const uniqueCards: InventoryRecord[] = [];
+			const repeatedCards: InventoryRecord[] = [];
+
+			// 3. Check if cards are repeated or new for his/her inventory.
+			randomCards.forEach((card) => {
+				const existInInventory = userInventoryCards.find((inventory) => inventory.card_id === card.card_id);
+				if (existInInventory) {
+					repeatedCards.push({
+						inventory_id: existInInventory.inventory_id,
+						user_id: args.user_id,
+						card_id: card.card_id,
+						amount: Number(card.amount) + 1,
+					});
+				} else {
+					uniqueCards.push({
+						inventory_id: nanoid(15),
+						user_id: args.user_id,
+						card_id: card.card_id,
+						amount: 1,
+					});
+				}
+			});
+
+			// 4. If the user don't have repeated cards, create new inventory rows for all the cards.
+			if (repeatedCards.length === 0) {
+				console.log("Usuario no tiene cards repetidas");
+				console.log(uniqueCards);
+				const result = await prisma.inventories.createMany({
+					data: uniqueCards,
+				});
+				console.log(result);
+				return randomCards;
+			} else {
+				// Insert the new cards
+				await prisma.inventories.createMany({ data: uniqueCards });
+				// Update multiple existing cards.
+				await prisma.$transaction(
+					repeatedCards.map((cardUpdated) =>
+						prisma.inventories.update({
+							where: {
+								inventory_id: cardUpdated.inventory_id,
+							},
+							data: {
+								amount: cardUpdated.amount,
+							},
+						})
+					)
+				);
+				return randomCards;
+			}
 		},
 	},
 	Mutation: {

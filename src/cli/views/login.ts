@@ -68,5 +68,6 @@ export const loginMenu = async () => {
 	user.id = userDB.user_id;
 	user.username = userDB.username;
 	user.email = userDB.email;
+	user.lastRewardClaimedDate = userDB.last_reward_claimed_date;
 	return "home";
 };

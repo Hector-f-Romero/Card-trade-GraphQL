@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
+import { CardInventory } from "../shared.types.js";
 
 const prisma = new PrismaClient();
 

@@ -8,7 +8,7 @@ const homeQuest = {
 	message: "What do you want to do?",
 	choices: [
 		{ value: "inventory", name: chalk.hex("2f9e44")("Inventory") },
-		{ value: "gift", name: chalk.hex("1971c2")("Reclaim gift") },
+		{ value: "reclaim", name: chalk.hex("1971c2")("Reclaim cards") },
 		{ value: "trade", name: chalk.hex("f08c00")("Trade") },
 		{ value: "index", name: chalk.hex("e03131")("Exit") },
 	],
