@@ -9,6 +9,7 @@ export const typeDef = `
 		getUsers: [User]
 		getUser(id:ID!):User
 		verifyUsernameOrEmailExist(username:String,email:String):[User]
+		loginUser(username:String!,password:String!):User
 	}
 
 	type Mutation{
@@ -51,6 +52,28 @@ export const resolvers = {
 			});
 			console.log(user);
 			return user;
+		},
+		loginUser: async (_: unknown, args: { username: string; password: string }) => {
+			const userDB = await prisma.users.findUnique({
+				where: {
+					username: args.username,
+				},
+			});
+
+			if (!userDB) {
+				throw new Error(`Username ${args.username} doesn't exist. Please try again.`);
+			}
+
+			//TODO: verify if the user is active or not
+
+			// Confirm password
+			const match = await bcrypt.compare(args.password, userDB.password);
+
+			if (!match) {
+				throw new Error("The password don't match. Please try again.");
+			}
+
+			return userDB;
 		},
 	},
 	Mutation: {

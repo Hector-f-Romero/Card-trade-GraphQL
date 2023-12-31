@@ -31,6 +31,35 @@ export const getInventoryUser = async (user_id: string) => {
 	return result;
 };
 
+export const loginUserService = async (username: string, password: string) => {
+	const queryLoginUser = `
+	query Query($username: String!, $password: String!) {
+		loginUser(username: $username, password: $password) {
+		  user_id
+		  username
+		  email
+		  last_reward_claimed_date
+		}
+	  }`;
+
+	const result = axios.post(
+		`${process.env.BACKEND_URL}/v1/graphql`,
+		{
+			query: queryLoginUser,
+			variables: {
+				username,
+				password,
+			},
+		},
+		{
+			headers: {
+				"Content-Type": "application/json",
+			},
+		}
+	);
+	return result;
+};
+
 export const verifyUserExist = async (username: string, email: string) => {
 	const queryverifyUsernameOrEmailExist = `
 	query Query($username: String!, $email: String!) {
