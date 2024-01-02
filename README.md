@@ -12,6 +12,8 @@ A console application where you can collect and trade cards with your favorite c
 
 Before clone the repository, download and install Node.js and MySQL server.
 
+To configure the client side, check this [repository](https://github.com/Hector-f-Romero/Card-trade-CLI).
+
 W.I.P.
 
 ## ⚙ Build with

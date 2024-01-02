@@ -5,13 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start:server": "node dist/index.js",
-    "start:cli": "tsx src/cli/inquirer-setup.ts",
-    "dev:cli": "tsx watch src/cli/inquirer-setup.ts",
-    "testApollo": "tsx src/test.ts"
+    "start:server": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +15,6 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
-    "@types/inquirer": "^9.0.7",
     "@types/node": "^20.10.3",
     "prisma": "^5.7.0",
     "ts-node": "^10.9.2",
@@ -33,7 +28,6 @@
     "@prisma/client": "^5.7.0",
     "axios": "^1.6.2",
     "bcrypt": "^5.1.1",
-    "chalk": "^5.3.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.10",
     "dotenv": "^16.3.1",
@@ -41,7 +35,6 @@
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
     "graphql-tools": "^9.0.0",
-    "inquirer": "^9.2.12",
     "nanoid": "^5.0.4",
     "ora": "^7.0.1"
   }
