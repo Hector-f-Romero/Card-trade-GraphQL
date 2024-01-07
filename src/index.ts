@@ -6,7 +6,7 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 
 import { schema } from "./graphql/schema.js";
-import { graphQLHandleErrors } from "./utils/handleErrors.js";
+import { graphQLHandleErrors } from "./helpers/handleErrors.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;

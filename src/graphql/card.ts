@@ -101,6 +101,17 @@ export const resolvers = {
 						},
 					});
 				});
+
+				// Update last Reward Claimed Date in DB
+				await prisma.users.update({
+					data: {
+						last_reward_claimed_date: new Date(),
+					},
+					where: {
+						user_id: args.user_id,
+					},
+				});
+
 				return randomCards;
 			}
 
@@ -129,12 +140,20 @@ export const resolvers = {
 
 			// 4. If the user don't have repeated cards, create new inventory rows for all the cards.
 			if (repeatedCards.length === 0) {
-				console.log("Usuario no tiene cards repetidas");
-				console.log(uniqueCards);
 				const result = await prisma.inventories.createMany({
 					data: uniqueCards,
 				});
-				console.log(result);
+
+				// Update last Reward Claimed Date in DB
+				await prisma.users.update({
+					data: {
+						last_reward_claimed_date: new Date(),
+					},
+					where: {
+						user_id: args.user_id,
+					},
+				});
+
 				return randomCards;
 			} else {
 				// Insert the new cards if exist new cards
@@ -154,6 +173,17 @@ export const resolvers = {
 						})
 					)
 				);
+
+				// Update last Reward Claimed Date in DB
+				await prisma.users.update({
+					data: {
+						last_reward_claimed_date: new Date(),
+					},
+					where: {
+						user_id: args.user_id,
+					},
+				});
+
 				return randomCards;
 			}
 		},

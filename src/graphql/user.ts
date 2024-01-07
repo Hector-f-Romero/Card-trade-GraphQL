@@ -14,8 +14,8 @@ export const typeDef = `
 
 	type Mutation{
 		createUser(username:String!,password:String!,email:String!):User
-		updateUser(id:ID!,username:String,password:String,email:String,last_reward_claimed_date:String,is_active:Boolean):User
-		deleteUser(id:ID!):User
+		updateUser(user_id:ID!,username:String,password:String,email:String,last_reward_claimed_date:String,is_active:Boolean):User
+		deleteUser(user_id:ID!):User
 	}
 
 	type User {
@@ -97,20 +97,20 @@ export const resolvers = {
 		updateUser: async (
 			_: unknown,
 			args: {
-				id: string;
+				user_id: string;
 				username: string;
 				email: string;
 				last_reward_claimed_date: string;
 				is_active: boolean;
 			}
 		) => {
-			const { id, username, email, last_reward_claimed_date, is_active } = args;
+			const { user_id, username, email, last_reward_claimed_date, is_active } = args;
 
 			// This resolver will not change the password, cause I prefer make a specific resolver for that action.
 			// TODO: resolver to change password.
 			const updatedUser = await prisma.users.update({
 				where: {
-					user_id: id,
+					user_id: user_id,
 				},
 				data: {
 					username,
@@ -122,11 +122,11 @@ export const resolvers = {
 
 			return updatedUser;
 		},
-		deleteUser: async (_: unknown, args: { id: string }) => {
+		deleteUser: async (_: unknown, args: { user_id: string }) => {
 			// For users has been implemented a soft delete for preserve the email accounts registered.
 			const deleteUser = await prisma.users.update({
 				where: {
-					user_id: args.id,
+					user_id: args.user_id,
 				},
 				data: {
 					is_active: false,
