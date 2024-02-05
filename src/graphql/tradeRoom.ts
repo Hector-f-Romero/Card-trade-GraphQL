@@ -15,7 +15,7 @@ export const typeDef = `
 
 	type Mutation{
 		createTradeRoom(host:UserRoomInput!):TradeRoom!
-		joinTradeRoom(room_id:String!,user:UserRoomInput!):String!
+		joinTradeRoom(room_id:String!,user:UserRoomInput!):TradeRoom!
 		deleteTradeRoom(room_id:String!):TradeRoom
 	}
 
@@ -24,13 +24,14 @@ export const typeDef = `
 	}
 
 	input UserRoomInput {
-        user_id: ID!
+        user_id: String!
         username: String!
     }
 
 	type TradeRoom {
         room_id: String!
         users: [UserRoom]
+		status: String
     }
 
     type UserRoom {
@@ -68,34 +69,34 @@ export const resolvers = {
 			// Verify if the trade room exist
 			const tradeRoomIndex = tradeRoomManager.tradeRooms.findIndex((room) => room.room_id === args.room_id);
 
+			// The property args.user is received like [Object: null prototype]. I intuit this occur thanks to Apollo Server
+			// For avoid the [Object: null prototype], I use Object.assign()
+			const formattedUser = Object.assign({}, args.user);
+
 			if (tradeRoomIndex === -1) {
 				// TODO: handle errors
 				return new Error("Trade doesn't exist.");
 			}
-
 			// Add the new user to the room
-			tradeRoomManager.tradeRooms[tradeRoomIndex].users.push(args.user);
-
+			tradeRoomManager.tradeRooms[tradeRoomIndex].users.push(formattedUser);
+			// Get the new users in the room
 			const newUsers = tradeRoomManager.tradeRooms[tradeRoomIndex].users;
 
-			console.log(newUsers);
 			pubsub.publish(`ROOM_${args.room_id}`, {
 				joinToRoom: {
 					room_id: args.room_id,
 					users: newUsers,
 				},
 			});
-			return "Holaaa";
+
+			console.log(tradeRoomManager.tradeRooms[tradeRoomIndex]);
+			return tradeRoomManager.tradeRooms[tradeRoomIndex];
 		},
 		deleteTradeRoom: async (_: unknown, args: { room_id: string }) => {
 			// Obtain index of element that I want remove
 			const roomIndex = tradeRoomManager.tradeRooms.findIndex((room) => room.room_id === args.room_id);
-			console.log(tradeRoomManager.tradeRooms);
-			console.log("--------------------------------");
 			// Delete a single room according to found index
 			const removedRoom = tradeRoomManager.tradeRooms.splice(roomIndex, 1);
-			console.log(tradeRoomManager.tradeRooms);
-			console.log(removedRoom);
 			return removedRoom;
 		},
 	},
